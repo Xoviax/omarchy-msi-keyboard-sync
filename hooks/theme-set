@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Omarchy calls this hook with the theme name as $1.
+theme_name="${1:-unknown}"
+
+hook_directory="$HOME/.config/omarchy/hooks/theme-set.d"
+
+# Run every executable script in theme-set.d in sorted order.
+if [[ -d "$hook_directory" ]]; then
+  while IFS= read -r -d '' hook_script; do
+    if [[ -x "$hook_script" ]]; then
+      "$hook_script" "$theme_name" || true
+    fi
+  done < <(find "$hook_directory" -maxdepth 1 -type f -print0 | sort -z)
+fi
